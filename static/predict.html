@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Model Predictor</title>
+    <title>ЖЖЖучий хуй</title>
 </head>
 
 <body>
@@ -39,9 +39,16 @@
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
             const formData = new FormData(form);
+            const requestData = {};
+            formData.forEach((value, key) => {
+                requestData[key] = value;
+            });
             const response = await fetch('/predict', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
             });
             const data = await response.json();
             resultDiv.innerHTML = `<p>Prediction: ${data.label}, Value: ${data.prediction}</p>`;
