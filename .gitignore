@@ -1,0 +1,6 @@
+venv
+tasks.db
+.idea
+.deta
+__pycache__
+Spacefile
