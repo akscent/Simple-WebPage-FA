@@ -1,67 +1,50 @@
-import random
-import re
-import string
-from typing import Optional
+import datetime
+from pydantic import BaseModel, Field
+from ms import app
+from ms.functions import get_model_response
 
-from fastapi import FastAPI, HTTPException, Request, Form
-from pydantic import BaseModel
-from starlette.responses import RedirectResponse
-
-app = FastAPI(
-    title="back4app-url-shortener",
-    description="simple (in-memory) url shortener service",
-    version="1.0.0",
-)
-url_regex = r"^(http|https)://[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(/\S*)?$"
-urls = {}
+model_name = "Breast Cancer Wisconsin (Diagnostic)"
+version = "v1.0.0"
 
 
-def generate_alias():
-    return "".join(random.choice(string.ascii_letters + string.digits) for _ in range(8))
+class Input(BaseModel):
+    concavity_mean: float = Field(..., gt=0)
+    concave_points_mean: float = Field(..., gt=0)
+    perimeter_se: float = Field(..., gt=0)
+    area_se: float = Field(..., gt=0)
+    texture_worst: float = Field(..., gt=0)
+    area_worst: float = Field(..., gt=0)
+
+    class Config:
+        schema_extra = {
+            "concavity_mean": 0.3001,
+            "concave_points_mean": 0.1471,
+            "perimeter_se": 8.589,
+            "area_se": 153.4,
+            "texture_worst": 17.33,
+            "area_worst": 2019.0,
+        }
 
 
-def generate_unique_alias():
-    alias = generate_alias()
-    while alias in urls:
-        alias = generate_alias()
-
-    return alias
+class Output(BaseModel):
+    label: str
+    prediction: int
 
 
 @app.get("/")
-async def root():
-    return {
-        "title": app.title,
-        "description": app.description,
-        "version": app.version,
-    }
+async def model_info():
+    """Return model information, version, how to call"""
+    return {"name": model_name, "version": version}
 
 
-class ShortenRequest(BaseModel):
-    long_url: str
-    alias: Optional[str] = None
+@app.get("/health")
+async def service_health():
+    """Return service health"""
+    return {"ok"}
 
 
-@app.post("/shorten")
-async def shorten(request: Request, data: ShortenRequest):
-    if not re.match(url_regex, data.long_url):
-        raise HTTPException(status_code=400, detail="Invalid URL.")
-
-    if data.alias and data.alias in urls:
-        raise HTTPException(status_code=400, detail="This URL alias is already taken.")
-
-    alias = data.alias if data.alias else generate_unique_alias()
-    urls[alias] = data.long_url
-
-    return {
-        "long_url": data.long_url,
-        "shortened_url": f"{request.base_url}{alias}",
-    }
-
-
-@app.get("/{alias}")
-async def shortened_url(alias: str):
-    if alias not in urls:
-        raise HTTPException(status_code=404, detail="Shortened URL not found.")
-
-    return RedirectResponse(urls[alias], status_code=303)
+@app.post("/predict", response_model=Output)
+async def model_predict(input: Input):
+    """Predict with input"""
+    response = get_model_response(input)
+    return response

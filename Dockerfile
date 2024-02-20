@@ -1,20 +1,16 @@
-FROM python:3.9.6-alpine
+# Base image
+FROM python:3.10
 
-# Set the working directory
-WORKDIR /app
-
-# Set environmental variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-# Copy over the requirements file and install the dependencies
-COPY ./requirements.txt .
-RUN pip install --no-cache-dir --upgrade -r ./requirements.txt
-
-# Copy over the source code
+# Copy files
 COPY . .
 
-# Expose the port
-EXPOSE 80
+# Install dependencies
+RUN pip install -r requirements.txt
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+# Train the model
+RUN python ./code/train.py
+
+# Run the application
+EXPOSE 8000
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
