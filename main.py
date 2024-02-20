@@ -1,5 +1,9 @@
 import datetime
+import platform
+import psutil
 from pydantic import BaseModel, Field
+from fastapi import Form
+from fastapi.responses import HTMLResponse, FileResponse
 from ms import app
 from ms.functions import get_model_response
 
@@ -32,15 +36,26 @@ class Output(BaseModel):
 
 
 @app.get("/")
+async def get_index():
+    return FileResponse("./static/predict.html")
+
+
+@app.get("/model-info", response_class=HTMLResponse)
 async def model_info():
     """Return model information, version, how to call"""
-    return {"name": model_name, "version": version}
+    return f"<h2>Model Name: {model_name}</h2><h2>Version: {version}</h2>"
 
 
 @app.get("/health")
 async def service_health():
     """Return service health"""
-    return {"ok"}
+    system_health = {
+        "cpu_usage_percent": psutil.cpu_percent(),
+        "memory_usage_percent": psutil.virtual_memory().percent,
+        "disk_usage_percent": psutil.disk_usage("/").percent,
+        "system_platform": platform.platform(),
+    }
+    return system_health
 
 
 @app.post("/predict", response_model=Output)
