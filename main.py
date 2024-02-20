@@ -1,6 +1,4 @@
 import datetime
-import platform
-import psutil
 from pydantic import BaseModel, Field
 from fastapi import Form
 from fastapi.responses import HTMLResponse, FileResponse
@@ -49,13 +47,7 @@ async def model_info():
 @app.get("/health")
 async def service_health():
     """Return service health"""
-    system_health = {
-        "cpu_usage_percent": psutil.cpu_percent(),
-        "memory_usage_percent": psutil.virtual_memory().percent,
-        "disk_usage_percent": psutil.disk_usage("/").percent,
-        "system_platform": platform.platform(),
-    }
-    return system_health
+    return {"ok"}
 
 
 @app.post("/predict", response_model=Output)
