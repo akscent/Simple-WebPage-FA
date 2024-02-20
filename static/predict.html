@@ -4,33 +4,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ЖЖЖучий хуй</title>
+    <title>Model Predictor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333333;
+        }
+
+        form {
+            display: grid;
+            gap: 10px;
+        }
+
+        label {
+            color: #666666;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #cccccc;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        #predictionResult {
+            margin-top: 20px;
+            color: #333333;
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>ЖЖЖучий хуй</h1>
-    <form id="predictionForm">
-        <label for="concavity_mean">Concavity Mean:</label>
-        <input type="number" step="0.01" id="concavity_mean" name="concavity_mean"><br>
+    <div class="container">
+        <h1>ЖЖЖучий жуй</h1>
+        <form id="predictionForm">
+            <label for="concavity_mean">Concavity Mean (0-1):</label>
+            <input type="range" step="0.01" min="0" max="1" value="0.5" id="concavity_mean" name="concavity_mean">
+            <span id="concavity_mean_value">0.5</span><br>
 
-        <label for="concave_points_mean">Concave Points Mean:</label>
-        <input type="number" step="0.01" id="concave_points_mean" name="concave_points_mean"><br>
+            <label for="concave_points_mean">Concave Points Mean (0-1):</label>
+            <input type="range" step="0.01" min="0" max="1" value="0.5" id="concave_points_mean"
+                name="concave_points_mean">
+            <span id="concave_points_mean_value">0.5</span><br>
 
-        <label for="perimeter_se">Perimeter SE:</label>
-        <input type="number" step="0.01" id="perimeter_se" name="perimeter_se"><br>
+            <label for="perimeter_se">Perimeter SE (0-1):</label>
+            <input type="range" step="0.01" min="0" max="1" value="0.5" id="perimeter_se" name="perimeter_se">
+            <span id="perimeter_se_value">0.5</span><br>
 
-        <label for="area_se">Area SE:</label>
-        <input type="number" step="0.01" id="area_se" name="area_se"><br>
+            <label for="area_se">Area SE (0-1):</label>
+            <input type="range" step="0.01" min="0" max="1" value="0.5" id="area_se" name="area_se">
+            <span id="area_se_value">0.5</span><br>
 
-        <label for="texture_worst">Texture Worst:</label>
-        <input type="number" step="0.01" id="texture_worst" name="texture_worst"><br>
+            <label for="texture_worst">Texture Worst (0-1):</label>
+            <input type="range" step="0.01" min="0" max="1" value="0.5" id="texture_worst" name="texture_worst">
+            <span id="texture_worst_value">0.5</span><br>
 
-        <label for="area_worst">Area Worst:</label>
-        <input type="number" step="0.01" id="area_worst" name="area_worst"><br>
+            <label for="area_worst">Area Worst (0-1):</label>
+            <input type="range" step="0.01" min="0" max="1" value="0.5" id="area_worst" name="area_worst">
+            <span id="area_worst_value">0.5</span><br>
 
-        <button type="submit">Predict</button>
-    </form>
-    <div id="predictionResult"></div>
+            <button type="submit">Predict</button>
+        </form>
+        <div id="predictionResult"></div>
+    </div>
 
     <script>
         const form = document.getElementById('predictionForm');
@@ -52,6 +123,14 @@
             });
             const data = await response.json();
             resultDiv.innerHTML = `<p>Prediction: ${data.label}, Value: ${data.prediction}</p>`;
+        });
+
+        // Update the displayed value when range input changes
+        document.querySelectorAll('input[type="range"]').forEach(input => {
+            input.addEventListener('input', function () {
+                const valueSpan = document.getElementById(`${this.id}_value`);
+                valueSpan.textContent = this.value;
+            });
         });
     </script>
 </body>
